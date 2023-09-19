@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: iperf-client
+  labels:
+    app: iperf-client
+spec:
+  nodeSelector:
+    cloud.google.com/gke-accelerator: nvidia-l4
+  tolerations:
+  - operator: Exists
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: app 
+            operator: In
+            values:
+            - iperf-server
+        topologyKey: "kubernetes.io/hostname"
+  containers:
+  - name: my-container
+    image: ubuntu:latest
+    command:
+    - /bin/bash
+    - -c
+    - |
+      apt update && apt install iperf -y
+      while true; do sleep 30; done;
+
